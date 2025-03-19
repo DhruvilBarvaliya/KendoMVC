@@ -1,0 +1,67 @@
+@* @model MVC.Models.t_Employee; *@
+<form id="empRegister" method="post" enctype="multipart/form-data"></form>
+<script src="~/js/Employee/Register.js"></script>
+
+
+
+
+<div class="mb-3">
+    <label for="profilePicture" class="form-label">Profile Picture</label>
+    <input type="file" class="form-control" id="profilePicture" name="profile_image">
+    <img id="previewImage" src="" alt="Profile Picture" class="img-thumbnail mt-2"
+        style="max-width: 100px; display: none;">
+</div>
+
+<script>
+    $('#empRegister').submit(function (e) {
+        var formData = new FormData()
+        var name = $("#c_empName").val()
+        var Email = $("#c_empEmail").val()
+        var Pwd = $("#c_empPwd").val()
+        console.log(name)
+
+
+        // If an image is selected, append it
+        var imageFile = $('#editUserImageFile')[0].files[0];
+        if (imageFile) {
+            formData.append("c_imageFile", imageFile);
+        }
+
+
+        // Show existing profile picture (if available)
+        if (userData.c_profilepicture) {
+            $("#previewImage").attr("src", "/profile_images/" + userData.c_profilepicture).show();
+        }
+
+
+
+
+        formData.append("c_empName", name)
+        formData.append("c_empEmail", Email)
+        formData.append("c_empPwd", Pwd)
+        e.preventDefault()
+        $.ajax({
+            url: "/Employee/Login",
+            type: "post",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function () {
+                alert(response.message);
+            },
+            error(xhr) {
+                alert("Error approving user: " + xhr.responseText);
+            }
+        })
+
+
+         // Preview selected profile picture
+        $("#profilePicture").change(function (event) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $("#previewImage").attr("src", e.target.result).show();
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        });
+    })
+</script>

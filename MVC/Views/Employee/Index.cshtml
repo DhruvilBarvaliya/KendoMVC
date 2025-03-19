@@ -1,0 +1,160 @@
+<h1>Employee Index</h1>
+
+<form id="empRegister">
+
+
+     <div class="form-group">
+        <label for="c_empformFile">Employee Profile</label>
+        <input id="c_empformFile" name="c_empformFile" type="file" />
+    </div>
+</form>
+
+@* <script src="~/js/Employee/Register.js"></script> *@
+<script>
+    $(document).ready(function () {
+        var states = [
+            { text: "Gujarat", value: "Gujarat" },
+            { text: "Maharashtra", value: "Maharashtra" },
+            { text: "Rajasthan", value: "Rajasthan" },
+        ];
+
+        var cities = {
+            Gujarat: [
+                { text: "Ahmedabad", value: "Ahmedabad" },
+                { text: "Surat", value: "Surat" },
+                { text: "Vadodara", value: "Vadodara" },
+            ],
+            Maharashtra: [
+                { text: "Mumbai", value: "Mumbai" },
+                { text: "Pune", value: "Pune" },
+                { text: "Nagpur", value: "Nagpur" },
+            ],
+            Rajasthan: [
+                { text: "Jaipur", value: "Jaipur" },
+                { text: "Udaipur", value: "Udaipur" },
+                { text: "Jodhpur", value: "Jodhpur" },
+            ],
+        };
+
+        // Initialize the form
+        $("#empRegister").kendoForm({
+            validatable: {
+                validateOnBlur: true,
+                errorTemplate: "<span class='text text-danger'>#=message#</span>",
+            },
+            formData: {
+                c_empName: "",
+                c_empEmail: "",
+                c_empState: "",
+                c_empCity: "",
+                c_empPwd: "",
+                c_empConfPwd: "",
+                c_empformFile: "",
+            },
+            items: [
+                {
+                    field: "c_empName",
+                    label: "Employee Name",
+                    validation: {
+                        required: { message: "Please enter name." },
+                    }
+                },
+                {
+                    field: "c_empEmail",
+                    label: "Employee Email"
+
+                },
+                {
+                    field: "c_empPwd",
+                    label: "Employee Password",
+                    validation: {
+                        required: { message: "Please enter your password." },
+                        pwdLength: function (input) {
+                            if (input.is("[name='c_empPwd']") && input.val().length < 8) {
+                                input.attr(
+                                    "data-pwdLength-msg",
+                                    "Password length must be at least 8 characters."
+                                );
+                                return false;
+                            }
+                            return true;
+                        },
+                    },
+                },
+                {
+                    field: "c_empConfPwd",
+                    label: "Confirm Password",
+                    validation: {
+                        required: { message: "Please enter confirm password." },
+                        comparePwd: function (input) {
+                            if (
+                                input.is("[name='c_empConfPwd']") &&
+                                $("[name='c_empPwd']").val() !== input.val()
+                            ) {
+                                input.attr(
+                                    "data-comparePwd-msg",
+                                    "Confirm password does not match."
+                                );
+                                return false;
+                            }
+                            return true;
+                        },
+                    },
+                },
+                {
+                    field: "c_empState",
+                    label: "Employee State",
+                    editor: "DropDownList",
+                    editorOptions: {
+                        dataTextField: "text",
+                        dataValueField: "value",
+                        dataSource: {
+                            data: states,
+                        },
+                        optionLabel: "Select State",
+                        change: function (e) {
+                            var selectedState = this.value();
+                            var cityDropdown = $("#c_empCity").data("kendoDropDownList");
+                            if (selectedState && cities[selectedState]) {
+                                cityDropdown.setDataSource(cities[selectedState]);
+                                cityDropdown.enable(true);
+                            } else {
+                                cityDropdown.setDataSource([]);
+                                cityDropdown.enable(false);
+                            }
+                        },
+                    },
+                },
+                {
+                    field: "c_empCity",
+                    label: "Employee city",
+                    editor: "DropDownList",
+                    editorOptions: {
+                        dataTextField: "text",
+                        dataValueField: "value",
+                        optionLabel: "Select City",
+                        dataSource: {
+                            data: cities,
+                        },
+                    }
+                },
+            ],
+        });
+
+    });
+
+
+     // Manually initialize the Kendo Upload for file input
+    $("#c_empformFile").kendoUpload({
+        async: {
+            saveUrl: "/api/upload", // Change to your actual API endpoint
+            removeUrl: "/api/remove",
+            autoUpload: true
+        },
+        validation: {
+            allowedExtensions: [".jpg", ".png", ".pdf"], // Allowed file types
+            maxFileSize: 10485760 // 10 MB limit
+        },
+        multiple: false
+    });
+</script>

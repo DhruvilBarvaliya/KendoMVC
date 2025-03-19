@@ -1,0 +1,236 @@
+
+<div id="taskGrid"></div>
+@* Delete Task Model *@
+<div id="delete-window-table">
+    <div class="window-wrapper">
+        <input id="DeltaskId" hidden type="text">
+        <div class="mb-10">
+            <h5 class="fw-bolder">Task Name</h5>
+            <p id="DelTaskTitle">This is task name</p>
+        </div>
+        <div class="mb-10">
+            <h5 class="fw-bolder">Member</h5>
+            <p id="DelusersList">Henil</p>
+        </div>
+        <div class="mb-10">
+            <h5 class="fw-bolder">Task Status</h5>
+            <p>Complete</p>
+        </div>
+        <div class="mb-10">
+            <h5 class="fw-bolder">Task Duration</h5>
+            <p>
+
+                <span id="Delstartdatetimepicker"></span> -- <span id="Delenddatetimepicker"></span>
+            </p>
+        </div>
+        <div class="mb-10">
+            <h5 class="fw-bolder">Task Description</h5>
+            <p id="DeltaskDescription"></p>
+        </div>
+    </div>
+    <div class="window-footer">
+        <a class="btn btn-trans close-window">Cancel</a><a id="DelTask" class="btn btn-primary">Delete</a>
+    </div>
+</div>
+
+@* Edit Task Model *@
+<div id="edit-window-table">
+    <div class="window-wrapper">
+        <form>
+            <input hidden type="text" id="taskId">
+            <div class="form-group">
+                <label>Task Title</label>
+                <input id="UpdateTaskTitle" type="text" class="form-control">
+            </div>
+            <div class="form-group mb-10">
+                <label for="UpdateusersList">Select Member</label>
+                <select id="UpdateusersList" class="form-control">
+                    <option disabled selected value="">Select Member</option>
+                </select>
+            </div>
+            <div class="form-group mb-10">
+                <label for="Updatestartdatetimepicker">Start Date Timepicker</label>
+                <input id="Updatestartdatetimepicker" class="form-control" title="date timepicker" />
+            </div>
+            <div class="form-group mb-10">
+                <label for="Updateenddatetimepicker">End Date Timepicker</label>
+                <input id="Updateenddatetimepicker" class="form-control" title="date timepicker" />
+            </div>
+            <div class="form-group mb-10">
+                <label for="Updatestatus">Update Status</label>
+                <select id="Updatestatus" class="form-control">
+                    <option value="">Select Status</option>
+                    <option value="Complete">Complete</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Description <span class="text-muted">(Optional)</span></label>
+                <textarea id="UpdatetaskDescription" class="form-control" rows="4" placeholder="Write here"
+                    title="description"></textarea>
+            </div>
+        </form>
+    </div>
+    <div class="window-footer">
+        <a class="btn btn-trans close-window">Cancel</a><a id="updateTaskBtn" class="btn btn-primary">Save</a>
+    </div>
+</div>
+
+
+@* Delete Task *@
+<script>
+
+    $("#delete-window-table").kendoWindow({
+        width: 450,
+        title: "Delete Task",
+        visible: false,
+        draggable: false,
+        resizable: false,
+        actions: [
+            "Close"
+        ],
+        modal: true
+    }).data("kendoWindow");
+
+    $(document).on('click', '.btn-delete-task', function () {
+        $("#delete-window-table").data("kendoWindow").center().open();
+    });
+
+</script>
+
+@* Edit Task *@
+<script>
+    $("#edit-window-table").kendoWindow({
+        width: 450,
+        title: "Edit Task",
+        visible: false,
+        draggable: false,
+        resizable: false,
+        actions: [
+            "Close"
+        ],
+        modal: true
+    }).data("kendoWindow");
+    $(document).on('click', '.btn-edit-task', function () {
+        $("#edit-window-table").data("kendoWindow").center().open();
+    });
+</script>
+
+
+
+<script>
+    $(document).ready(function () {
+        LoadGridData()
+        function LoadGridData() {
+            // Fetch Data from API
+            var taskDataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: "/Admin/Tasks",
+                        dataType: "json"
+                    }
+                },
+                pageSize: 5,
+                schema: {
+                    model: {
+                        id: "c_tid",
+                        fields: {
+                            c_tid: { type: "number" },
+                            c_uid: { type: "number" },
+                            c_task_title: { type: "string" },
+                            c_description: { type: "string" },
+                            c_start_date: { type: "date" },
+                            c_end_date: { type: "date" },
+                            c_task_status: { type: "string" }
+                        }
+                    }
+                }
+            });
+
+            // Initialize Kendo Grid
+            $("#taskGrid").kendoGrid({
+                dataSource: taskDataSource,
+                height: 400,
+                pageable: {
+                    refresh: true,
+                    pageSizes: [5, 10, 20],
+                    buttonCount: 3
+                },
+                // Search
+            toolbar:["search"],
+            search: {
+                fields: ["c_task_title"],
+            },
+                // Grouping
+            groupable: true,
+                @* toolbar:search, *@
+                sortable: true,
+                filterable: true,
+                resizable: true,
+                columns: [
+                    { field: "c_tid", title: "Task ID", width: 80 },
+                    { field: "c_uid", title: "User ID", width: 80 },
+                    { field: "c_task_title", title: "Task Title", width: 150 },
+                    { field: "c_description", title: "Description", width: 200 },
+                    {
+                        field: "c_start_date",
+                        title: "Start Date",
+                        width: 120,
+                        format: "{0:yyyy-MM-dd}"
+                    },
+                    {
+                        field: "c_end_date",
+                        title: "End Date",
+                        width: 120,
+                        format: "{0:yyyy-MM-dd}"
+                    },
+                    { field: "c_task_status", title: "Status", width: 100 },
+                    {
+                        title: "Actions",
+                        template: "<button class='btn-edit-task btn btn-warning btn-sm'><i class='icon-edit'></i>Edit</button> <button class='btn-delete-task btn btn-danger btn-sm'><i class='icon-delete'>Delete</i></button>",
+                        width: 120
+                    }
+                ],
+                dataBound: function () {
+                    $(".btn-edit-task").click(function () {
+                        var grid = $("#taskGrid").data("kendoGrid");
+                        var row = $(this).closest("tr");
+                        var dataItem = grid.dataItem(row);
+
+                        if (dataItem) {
+                            $("#taskId").val(dataItem.c_tid);
+                            $("#UpdateTaskTitle").val(dataItem.c_task_title);
+                            $("#UpdateusersList").val(dataItem.c_uid);
+                            $("#Updatestartdatetimepicker").val(new Date(dataItem.c_start_date).toISOString().slice(0, 16));
+                            $("#Updateenddatetimepicker").val(new Date(dataItem.c_end_date).toISOString().slice(0, 16));
+                            $("#UpdatetaskDescription").val(dataItem.c_description);
+                        }
+                    });
+
+                    $(".btn-delete-task").click(function () {
+                        var grid = $("#taskGrid").data("kendoGrid");
+                        var row = $(this).closest("tr");
+                        var dataItem = grid.dataItem(row);
+
+                        if (dataItem) {
+                            $("#DeltaskId").val(dataItem.c_tid);
+                            $("#DelTaskTitle").html(dataItem.c_task_title);
+                            $("#DelusersList").html(dataItem.c_uid);
+                            $("#Delstartdatetimepicker").html(new Date(dataItem.c_start_date).toISOString().slice(0, 16));
+                            $("#Delenddatetimepicker").html(new Date(dataItem.c_end_date).toISOString().slice(0, 16));
+                            $("#DeltaskDescription").html(dataItem.c_description);
+                        }
+                    });
+                },
+                scrollable: true
+            });
+
+            // Initialize Pager
+            $("#taskPager").kendoPager({
+                dataSource: taskDataSource
+            });
+        }
+    });
+
+</script>
